@@ -114,7 +114,9 @@ gulp.task('lint:failOnError', checkLint(true));
 gulp.task('lint:noFailOnError', checkLint(false));
 
 // default lint task
-gulp.task('lint', ['lint:failOnError']);
+gulp.task('lint', ['lint:failOnError'], function() {
+  gutil.log('No Lint Errors');
+});
 
 /**
  * tasks to bundle all the javscript files
@@ -130,27 +132,32 @@ gulp.task('scripts:development', bundleJs({
 }));
 
 // from src directory to distribution directory - release/production mode
-gulp.task('scripts:release', function() {
-  return gulp.src([
+gulp.task('scripts:release', ['lint:failOnError', 'test'] , function() {
+  gulp.src([
     'src/**/*.js',
     'src/**/*.jsx',
   ])
     .pipe(babel())
     .pipe(gulp.dest('dist'));
+
+  gutil.log('Scripts released into dist folder');
 });
 
 /**
  * task to initial tests using mocha
  */
 
-gulp.task('test', function() {
-  gulp.src([
+gulp.task('test', function(done) {
+  return gulp.src([
     'test/.setup.js',
     'test/**/*.test.js',
   ])
     .pipe(mocha({
       require: 'babel-core/register',
-    }));
+    }))
+    .once('error', () => {
+      process.exit(1);
+    });
 });
 
 /**
