@@ -5,16 +5,17 @@
  */
 const gulp = require('gulp');
 const gutil = require('gulp-util');
-const browserify = require('browserify');
-const watchify = require('watchify');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
-const browserSync = require('browser-sync');
 const eslint = require('gulp-eslint');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const mocha = require('gulp-mocha');
 const babel = require('gulp-babel');
+
+const browserify = require('browserify');
+const watchify = require('watchify');
+const source = require('vinyl-source-stream');
+const buffer = require('vinyl-buffer');
+const browserSync = require('browser-sync');
 
 /**
  * function to handle errors from any task
@@ -113,7 +114,9 @@ gulp.task('lint:failOnError', checkLint(true));
 gulp.task('lint:noFailOnError', checkLint(false));
 
 // default lint task
-gulp.task('lint', ['lint:failOnError']);
+gulp.task('lint', ['lint:failOnError'], function() {
+  gutil.log('No Lint Errors');
+});
 
 /**
  * tasks to bundle all the javscript files
@@ -129,27 +132,32 @@ gulp.task('scripts:development', bundleJs({
 }));
 
 // from src directory to distribution directory - release/production mode
-gulp.task('scripts:release', function() {
-  return gulp.src([
+gulp.task('scripts:release', ['lint:failOnError', 'test'] , function() {
+  gulp.src([
     'src/**/*.js',
     'src/**/*.jsx',
   ])
     .pipe(babel())
     .pipe(gulp.dest('dist'));
+
+  gutil.log('Scripts released into dist folder');
 });
 
 /**
  * task to initial tests using mocha
  */
 
-gulp.task('test', function() {
-  gulp.src([
+gulp.task('test', function(done) {
+  return gulp.src([
     'test/.setup.js',
     'test/**/*.test.js',
   ])
     .pipe(mocha({
       require: 'babel-core/register',
-    }));
+    }))
+    .once('error', () => {
+      process.exit(1);
+    });
 });
 
 /**
