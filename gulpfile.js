@@ -5,16 +5,17 @@
  */
 const gulp = require('gulp');
 const gutil = require('gulp-util');
-const browserify = require('browserify');
-const watchify = require('watchify');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
-const browserSync = require('browser-sync');
 const eslint = require('gulp-eslint');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const mocha = require('gulp-mocha');
 const babel = require('gulp-babel');
+
+const browserify = require('browserify');
+const watchify = require('watchify');
+const source = require('vinyl-source-stream');
+const buffer = require('vinyl-buffer');
+const browserSync = require('browser-sync');
 
 /**
  * function to handle errors from any task
